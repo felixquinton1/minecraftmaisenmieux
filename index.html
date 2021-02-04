@@ -176,7 +176,6 @@
 
         function onRightClickDown(event){
             event.preventDefault();
-            console.log("je passse");
             mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
 
             raycaster.setFromCamera( mouse, camera );
@@ -199,7 +198,6 @@
 
 
         function onDocumentKeyDown( event ) {
-            console.log("je passe");
         switch ( event.keyCode ) {
 
             case 17: 

@@ -8,8 +8,6 @@
 
 var handposeModel = null; // this will be loaded with the handpose model
                           // WARNING: do NOT call it 'model', because p5 already has something called 'model'
-// var delay = false;
-// const delayTime = 5000;
 
 var modeTetra = false;
 
@@ -120,20 +118,6 @@ function lookAtDelete(hands){
         }
     }
 }
-// function lookAtPinchCube(hands){
-//     for (let i = 0; i < hands.length; i++){
-
-//         let d = Math.sqrt(Math.pow((hands[i].landmarks[4][0] - hands[i].landmarks[16][0]),2) +
-//         Math.pow((hands[i].landmarks[4][1] - hands[i].landmarks[16][1]),2) + 
-//         Math.pow((hands[i].landmarks[4][2] - hands[i].landmarks[16][2]),2));
-//         if(d < 20){
-//             let pos = window.innerWidth - hands[i].landmarks[16][0];
-//             document.dispatchEvent(new KeyboardEvent('keyup', {
-//                 keyCode: 17
-//                 }));
-//         }
-//     }
-// }
 
 function move(hands){
     for (let i = 0; i < hands.length; i++){
@@ -153,11 +137,7 @@ function move(hands){
   
 //   // Each hand object contains a `landmarks` property,
 //   // which is an array of 21 3-D landmarks.
-//   for (var i = 0; i < hands.length; i++){
-//     lookAtPinch(hands);
 
-//   }
-// }
 
 
 
