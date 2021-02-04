@@ -23,7 +23,7 @@
         export { isShiftUp };
         function init(){
             camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
-            camera.position.set( 0, 2000, 1300 );
+            camera.position.set( 0, 2500, 1000 );
             camera.lookAt( 0, 0, 0 );
 
             //trucs obligatoires
@@ -124,7 +124,6 @@
         
         function onDocumentMouseDown( event ) {
             event.preventDefault();
-            console.log(isShiftUp);
                 switch(event.which){
                 case 1:
                 if ( isShiftUp ) {
@@ -177,6 +176,7 @@
 
         function onRightClickDown(event){
             event.preventDefault();
+            console.log("je passse");
             mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
 
             raycaster.setFromCamera( mouse, camera );
@@ -199,9 +199,15 @@
 
 
         function onDocumentKeyDown( event ) {
+            console.log("je passe");
         switch ( event.keyCode ) {
 
-            case 17: isShiftUp = false; break;
+            case 17: 
+            if(isShiftUp){
+                isShiftUp = false; break;}
+            else{
+                isShiftUp = true; break;
+            }
 
         }
 

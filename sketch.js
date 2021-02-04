@@ -8,6 +8,10 @@
 
 var handposeModel = null; // this will be loaded with the handpose model
                           // WARNING: do NOT call it 'model', because p5 already has something called 'model'
+// var delay = false;
+// const delayTime = 5000;
+
+var modeTetra = false;
 
 var videoDataLoaded = false; // is webcam capture ready?
 
@@ -40,66 +44,107 @@ function setup() {
   capture.hide();
 }
 
+function disableDelayMode(){
+    delay = false;
+}
 function lookAtPinch(hands){
-    for (let i = 0; i < hands.length; i++){
+        for (let i = 0; i < hands.length; i++){
 
-        let d = Math.sqrt(Math.pow((hands[i].landmarks[4][0] - hands[i].landmarks[8][0]),2) +
-        Math.pow((hands[i].landmarks[4][1] - hands[i].landmarks[8][1]),2) + 
-        Math.pow((hands[i].landmarks[4][2] - hands[i].landmarks[8][2]),2));
-        if(d < 50){
-            let pos = window.innerWidth - hands[i].landmarks[11][0];
-            document.dispatchEvent(new MouseEvent('mousedown', {
-                view: window,
-                button: 0,
-                bubbles: true,
-                cancelable: true,
-                clientX: pos,
-                clientY: hands[i].landmarks[11][1],
-              }));          
+            let d = Math.sqrt(Math.pow((hands[i].landmarks[4][0] - hands[i].landmarks[8][0]),2) +
+            Math.pow((hands[i].landmarks[4][1] - hands[i].landmarks[8][1]),2) + 
+            Math.pow((hands[i].landmarks[4][2] - hands[i].landmarks[8][2]),2));
+            if(d < 50){
+                let pos = window.innerWidth - hands[i].landmarks[11][0];
+                document.dispatchEvent(new MouseEvent('mousedown', {
+                    view: window,
+                    button: 0,
+                    bubbles: true,
+                    cancelable: true,
+                    clientX: pos,
+                    clientY: hands[i].landmarks[12][1],
+                  }));          
+            }
+        }
+    
+}
+function lookAtMode(hands){
+    if(modeTetra){
+        for (let i = 0; i < hands.length; i++){
+            let d = Math.sqrt(Math.pow((hands[i].landmarks[4][0] - hands[i].landmarks[20][0]),2) +
+                    Math.pow((hands[i].landmarks[4][1] - hands[i].landmarks[20][1]),2) + 
+                    Math.pow((hands[i].landmarks[4][2] - hands[i].landmarks[20][2]),2));
+            if(d > 100){
+                modeTetra = false;
+            }
         }
     }
+    
 }
-
 function lookAtPinchTetra(hands){
-    for (let i = 0; i < hands.length; i++){
+    if(!modeTetra){
+        for (let i = 0; i < hands.length; i++){
 
-        let d = Math.sqrt(Math.pow((hands[i].landmarks[4][0] - hands[i].landmarks[20][0]),2) +
-        Math.pow((hands[i].landmarks[4][1] - hands[i].landmarks[20][1]),2) + 
-        Math.pow((hands[i].landmarks[4][2] - hands[i].landmarks[20][2]),2));
-        if(d < 20){
-            let pos = window.innerWidth - hands[i].landmarks[20][0];
-            document.dispatchEvent(new KeyboardEvent('keydown', {
-                keyCode: 17
-                }));
+            let d = Math.sqrt(Math.pow((hands[i].landmarks[4][0] - hands[i].landmarks[20][0]),2) +
+            Math.pow((hands[i].landmarks[4][1] - hands[i].landmarks[20][1]),2) + 
+            Math.pow((hands[i].landmarks[4][2] - hands[i].landmarks[20][2]),2));
+            if(d < 20){
+                let pos = window.innerWidth - hands[i].landmarks[20][0];
+                
+                document.dispatchEvent(new KeyboardEvent('keydown', {
+                    keyCode: 17
+                    }));
+                    modeTetra = true;
+            }
         }
+        
     }
+    
 }
 
-function lookAtPinchCube(hands){
+function lookAtDelete(hands){
     for (let i = 0; i < hands.length; i++){
 
         let d = Math.sqrt(Math.pow((hands[i].landmarks[4][0] - hands[i].landmarks[16][0]),2) +
         Math.pow((hands[i].landmarks[4][1] - hands[i].landmarks[16][1]),2) + 
         Math.pow((hands[i].landmarks[4][2] - hands[i].landmarks[16][2]),2));
-        if(d < 20){
-            let pos = window.innerWidth - hands[i].landmarks[16][0];
-            document.dispatchEvent(new KeyboardEvent('keyup', {
-                keyCode: 17
-                }));
+        if(d < 50){
+            let pos = window.innerWidth - hands[i].landmarks[11][0];
+            document.dispatchEvent(new MouseEvent('contextmenu', {
+                view: window,
+                button: 0,
+                bubbles: true,
+                cancelable: true,
+                clientX: pos,
+                clientY: hands[i].landmarks[12][1],
+              }));          
         }
     }
 }
+// function lookAtPinchCube(hands){
+//     for (let i = 0; i < hands.length; i++){
+
+//         let d = Math.sqrt(Math.pow((hands[i].landmarks[4][0] - hands[i].landmarks[16][0]),2) +
+//         Math.pow((hands[i].landmarks[4][1] - hands[i].landmarks[16][1]),2) + 
+//         Math.pow((hands[i].landmarks[4][2] - hands[i].landmarks[16][2]),2));
+//         if(d < 20){
+//             let pos = window.innerWidth - hands[i].landmarks[16][0];
+//             document.dispatchEvent(new KeyboardEvent('keyup', {
+//                 keyCode: 17
+//                 }));
+//         }
+//     }
+// }
 
 function move(hands){
     for (let i = 0; i < hands.length; i++){
-        let pos = window.innerWidth - hands[i].landmarks[11][0];
+        let pos = window.innerWidth - hands[i].landmarks[12][0];
         document.dispatchEvent(new MouseEvent('mousemove', {
         view: window,
         button: 0,
         bubbles: true,
         cancelable: true,
         clientX: pos,
-        clientY: hands[i].landmarks[11][1],
+        clientY: hands[i].landmarks[12][1],
         }));
     }
 }
@@ -113,6 +158,7 @@ function move(hands){
 
 //   }
 // }
+
 
 
 function draw() {
@@ -144,10 +190,13 @@ function draw() {
 //   filter(INVERT);
   fill(255,0,0);
   stroke(255,0,0);
+
   lookAtPinch(myHands);
   move(myHands);
-  lookAtPinchCube(myHands)
-  lookAtPinchTetra(myHands)
+  lookAtMode(myHands);
+//   lookAtPinchCube(myHands);
+  lookAtPinchTetra(myHands);
+  lookAtDelete(myHands)
 //   drawHands(myHands); // draw my hand skeleton
   pop();
   
