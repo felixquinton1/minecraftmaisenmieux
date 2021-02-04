@@ -1,0 +1,223 @@
+let camera, scene, renderer;
+let plane;
+let mouse, raycaster, isShiftUp = true;
+
+let rollOverMesh, rollOverMaterial;
+let cube, cubeMaterial, tetra, tetraMaterial;
+const objects = [];
+let controls;
+init();
+animate();
+
+export { isShiftUp };
+function init(){
+    camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
+    camera.position.set( 0, 2000, 1300 );
+    camera.lookAt( 0, 0, 0 );
+
+    //trucs obligatoires
+    renderer = new THREE.WebGLRenderer( { antialias: true } );
+    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    document.body.appendChild( renderer.domElement );
+    
+
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color( 0xf0f0f0 );
+
+
+    // cube rouge
+    const rollOverGeo = new THREE.BoxGeometry( 50, 50, 50 );
+    rollOverMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.5, transparent: true } );
+    rollOverMesh = new THREE.Mesh( rollOverGeo, rollOverMaterial );
+    scene.add( rollOverMesh );
+    
+    // cube texturé
+
+    cube = new THREE.BoxGeometry( 50, 50, 50 );
+    cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, map: new THREE.TextureLoader().load( 'textures/atlas.png' ) } );
+
+    tetra = new THREE.CylinderGeometry( 1, 36, 50, 4 );
+    tetraMaterial = new  THREE.MeshLambertMaterial( { color: 0xfeb74c, map: new THREE.TextureLoader().load( 'textures/atlas.png' ) } );
+    tetra.rotateY(2.35);
+    
+    //grid
+
+    const gridHelper = new THREE.GridHelper( 1000, 20 );
+    scene.add( gridHelper );
+    
+    //ray caster    
+    raycaster = new THREE.Raycaster();
+    mouse = new THREE.Vector2();
+
+    const geometry = new THREE.PlaneGeometry( 1000, 1000 );
+    geometry.rotateX( - Math.PI / 2 );
+
+    plane = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { visible: false } ) );
+    scene.add( plane );
+
+    objects.push( plane );
+
+    //lumiere (super imortnt sinon on voit pas les textures)
+    const ambientLight = new THREE.AmbientLight( 0x606060 );
+    scene.add( ambientLight );
+
+    const directionalLight = new THREE.DirectionalLight( 0xffffff );
+    directionalLight.position.set( 1, 0.75, 0.5 ).normalize();
+    scene.add( directionalLight );
+    
+
+    //event listener
+    document.addEventListener( 'mousemove', onDocumentMouseMove );
+    document.addEventListener( 'mousedown', onDocumentMouseDown );
+    document.addEventListener('contextmenu',onRightClickDown);
+    document.addEventListener( 'keydown', onDocumentKeyDown );
+    document.addEventListener( 'keyup', onDocumentKeyUp );
+    window.addEventListener( 'resize', onWindowResize );
+
+    
+}
+
+function onWindowResize() {
+
+camera.aspect = window.innerWidth / window.innerHeight;
+camera.updateProjectionMatrix();
+
+renderer.setSize( window.innerWidth, window.innerHeight );
+
+}
+
+function onDocumentMouseMove( event ) {
+
+event.preventDefault();
+
+mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
+
+raycaster.setFromCamera( mouse, camera );
+
+const intersects = raycaster.intersectObjects( objects );
+
+if ( intersects.length > 0 ) {
+
+    const intersect = intersects[ 0 ];
+
+    rollOverMesh.position.copy( intersect.point ).add( intersect.face.normal );
+    rollOverMesh.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
+
+}
+
+
+render();
+
+}
+
+function onDocumentMouseDown( event ) {
+    event.preventDefault();
+    console.log(isShiftUp);
+        switch(event.which){
+        case 1:
+        if ( isShiftUp ) {
+            
+            mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
+            raycaster.setFromCamera( mouse, camera );
+
+            const intersects = raycaster.intersectObjects( objects );
+
+            if ( intersects.length > 0 ) {
+
+                const intersect = intersects[ 0 ];
+                    const voxel = new THREE.Mesh( cube, cubeMaterial );
+                    voxel.position.copy( intersect.point ).add( intersect.face.normal );
+                    voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
+                    scene.add( voxel );
+
+                    objects.push( voxel );
+
+            
+
+                render();
+
+            }
+        }
+        else{
+            mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
+            raycaster.setFromCamera( mouse, camera );
+
+            const intersects = raycaster.intersectObjects( objects );
+
+            if ( intersects.length > 0 ) {
+
+                const intersect = intersects[ 0 ];
+                    const voxel = new THREE.Mesh( tetra, tetraMaterial );
+                    voxel.position.copy( intersect.point ).add( intersect.face.normal );
+                    voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
+                    scene.add( voxel );
+
+                    objects.push( voxel );
+
+            
+
+                render();
+            }
+        } 
+            
+    }
+}
+
+function onRightClickDown(event){
+    event.preventDefault();
+    mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
+
+    raycaster.setFromCamera( mouse, camera );
+
+    const intersects = raycaster.intersectObjects( objects );
+
+    if ( intersects.length > 0 ) {
+        const intersect = intersects[ 0 ];
+
+        if ( intersect.object !== plane ) {
+            scene.remove( intersect.object );
+
+            objects.splice( objects.indexOf( intersect.object ), 1 );
+        }
+
+        render();
+
+    }
+}
+
+
+function onDocumentKeyDown( event ) {
+switch ( event.keyCode ) {
+
+    case 17: isShiftUp = false; break;
+
+}
+
+}
+
+function onDocumentKeyUp( event ) {
+switch ( event.keyCode ) {
+    
+    case 17: isShiftUp = true; break;
+    case 37: controls.panLeft(); break;
+    case 38: controls.panUp(); break;
+    case 39: controls.panRight(); break;
+    case 40: controls.panDown(); break;
+
+}
+
+}
+
+function animate() {
+
+requestAnimationFrame( animate );
+render();
+
+}
+
+
+function render() {
+renderer.render( scene, camera );
+
+}
